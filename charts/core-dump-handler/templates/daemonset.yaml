@@ -150,11 +150,26 @@ spec:
       {{- end }}
       volumes:
       - name: host-volume
-        persistentVolumeClaim:
-          claimName:  host-storage-pvc
+        hostPath:
+          path: {{ .Values.daemonset.hostDirectory }}
+          type: DirectoryOrCreate
+      {{- if .Values.coreEphemeralVolume.enabled }}
       - name: core-volume
-        persistentVolumeClaim:
-          claimName:  core-storage-pvc
+        ephemeral:
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                {{- toYaml .Values.coreEphemeralVolume.accessModes | nindent 16 }}
+              storageClassName: {{ .Values.coreEphemeralVolume.storageClassName }}
+              resources:
+                requests:
+                  storage: {{ .Values.coreEphemeralVolume.storage }}
+      {{- else }}
+      - name: core-volume
+        hostPath:
+          path: {{ .Values.daemonset.coreDirectory }}
+          type: DirectoryOrCreate
+      {{- end }}
       {{- if .Values.composer.coreEvents }}
       - name: event-volume
         persistentVolumeClaim:

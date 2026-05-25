@@ -1,0 +1,52 @@
+image:
+  registry: 527027779790.dkr.ecr.us-east-2.amazonaws.com
+  repository: cloud-dev/core-dump-handler-musl
+  tag: v8.10.0-crictl1.32-arm64
+  pullPolicy: Always
+
+daemonset:
+  # S3 上传配置
+  manageStoreSecret: true
+  s3AccessKey: "xxx"
+  s3Secret: "xxx"
+  s3BucketName: "nebula-core-dump-test"
+  s3Region: "us-east-2"
+
+  # 容器运行时（使用镜像内新版 crictl 连接宿主机 containerd）
+  mountContainerRuntimeEndpoint: true
+  crioEndpoint: "unix:///run/containerd/containerd.sock"
+  hostContainerRuntimeEndpoint: "/run/containerd/containerd.sock"
+  deployCrioConfig: true
+  includeCrioExe: true
+
+  suidDumpable: 2
+  vendor: default
+
+composer:
+  ignoreCrio: false
+  includeProcInfo: false
+  logLevel: "Info"
+  compression: true
+  timeout: 600
+  podSelectorLabel: ""
+  filenameTemplate: "{namespace}-dump-{timestamp}-{hostname}-{signal}"
+
+# 使用 Generic Ephemeral Volume 隔离 core dump 存储，避免撑满节点根盘
+coreEphemeralVolume:
+  enabled: true
+  storageClassName: "ebs-sc"
+  storage: "20Gi"
+  accessModes:
+    - ReadWriteOnce
+
+serviceAccount:
+  useToken: true
+
+# 只在 worker 节点上运行
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: controller-used
+          operator: DoesNotExist
