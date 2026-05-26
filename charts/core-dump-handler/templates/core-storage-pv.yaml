@@ -1,3 +1,4 @@
+{{- if false }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -16,3 +17,4 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: {{ .Values.daemonset.coreDirectory }}
+{{- end }}

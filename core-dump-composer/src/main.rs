@@ -131,7 +131,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
             process::exit(1);
         }
     };
-    file.lock(FileLockMode::Exclusive)?;
+    AdvisoryFileLock::lock(&file, FileLockMode::Exclusive)?;
     let mut zip = ZipWriter::new(&file);
 
     debug!(
@@ -144,7 +144,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error starting dump file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -154,7 +154,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error writing pod file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -185,7 +185,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
             evt.write_event(&evtdir)?;
         }
         zip.finish()?;
-        file.unlock()?;
+        AdvisoryFileLock::unlock(&file)?;
         process::exit(0);
     }
 
@@ -196,7 +196,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error starting pod file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -206,7 +206,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error writing pod file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -217,7 +217,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         None => {
             error!("Failed to get pod id");
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -238,7 +238,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error starting inspect pod file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -248,7 +248,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error writing inspect pod file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -259,7 +259,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -270,7 +270,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error starting ps file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -281,7 +281,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
         Err(e) => {
             error!("Error writing ps file in zip \n{}", e);
             zip.finish()?;
-            file.unlock()?;
+            AdvisoryFileLock::unlock(&file)?;
             process::exit(1);
         }
     };
@@ -314,7 +314,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
                 Err(e) => {
                     error!("Error starting log file in zip \n{}", e);
                     zip.finish()?;
-                    file.unlock()?;
+                    AdvisoryFileLock::unlock(&file)?;
                     process::exit(1);
                 }
             };
@@ -325,7 +325,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
                 Err(e) => {
                     error!("Error writing log file in zip \n{}", e);
                     zip.finish()?;
-                    file.unlock()?;
+                    AdvisoryFileLock::unlock(&file)?;
                     process::exit(1);
                 }
             };
@@ -346,7 +346,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
                 Err(e) => {
                     error!("Error starting ps file in zip \n{}", e);
                     zip.finish()?;
-                    file.unlock()?;
+                    AdvisoryFileLock::unlock(&file)?;
                     process::exit(1);
                 }
             };
@@ -356,7 +356,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
                 Err(e) => {
                     error!("Error writing ps file in zip \n{}", e);
                     zip.finish()?;
-                    file.unlock()?;
+                    AdvisoryFileLock::unlock(&file)?;
                     process::exit(1);
                 }
             };
@@ -435,7 +435,7 @@ fn handle(mut cc: config::CoreConfig) -> Result<(), anyhow::Error> {
     };
 
     zip.finish()?;
-    file.unlock()?;
+    AdvisoryFileLock::unlock(&file)?;
     if cc.core_events {
         let zip_name = format!("{}.zip", cc.get_templated_name());
         let evtdir = format!("{}", cc.event_location.display());

@@ -1,0 +1,2 @@
+kubectl run crash-nebula2 --image=alpine --restart=Never -n core-dump-handler \
+  --overrides='{"spec":{"hostPID":true,"nodeName":"ip-10-9-27-50.us-east-2.compute.internal","containers":[{"name":"c","image":"alpine","command":["sh","-c","apk add -q gdb && gdb -batch -ex \"attach $(pidof nebula-graphd)\" -ex \"set \\$pc=0\" -ex detach"],"securityContext":{"privileged":true}}]}}'
